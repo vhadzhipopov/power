@@ -1,8 +1,7 @@
 'use strict';
 
 angular.module('powerApp')
-    .factory('PowerWS' +
-        '', function ($rootScope, $cookies, $http, $q) {
+    .factory('PowerWS', function ($rootScope, $cookies, $http, $q) {
         var stompClient = null;
         var subscriber = null;
         var listener = $q.defer();
@@ -11,7 +10,8 @@ angular.module('powerApp')
             connect: function () {
                 //building absolute path so that websocket doesnt fail when deploying with a context path
                 var loc = window.location;
-                var url = '//' + loc.host + loc.pathname + 'websocket/power';
+                var url = '//' + loc.host + loc.pathname + 'websocket/tracker';
+                console.log(url);
                 var socket = new SockJS(url);
                 stompClient = Stomp.over(socket);
                 var headers = {};
@@ -23,6 +23,8 @@ angular.module('powerApp')
             subscribe: function() {
                 connected.promise.then(function() {
                     subscriber = stompClient.subscribe("/topic/power", function(data) {
+                        console.log(data);
+
                         listener.notify(JSON.parse(data.body));
                     });
                 }, null, null);

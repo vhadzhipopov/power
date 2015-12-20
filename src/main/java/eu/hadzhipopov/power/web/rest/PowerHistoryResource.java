@@ -5,7 +5,6 @@ import eu.hadzhipopov.power.domain.PowerHistory;
 import eu.hadzhipopov.power.repository.PowerHistoryRepository;
 import eu.hadzhipopov.power.web.rest.util.HeaderUtil;
 import eu.hadzhipopov.power.web.rest.util.PaginationUtil;
-import eu.hadzhipopov.power.web.websocket.PowerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -14,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
@@ -39,7 +39,7 @@ public class PowerHistoryResource {
     private PowerHistoryRepository powerHistoryRepository;
 
     @Inject
-    private PowerService powerService;
+    private SimpMessagingTemplate template;
     /**
      * POST  /powerHistorys -> Create a new powerHistory.
      */
@@ -55,7 +55,7 @@ public class PowerHistoryResource {
         Instant instant = Instant.ofEpochMilli(Calendar.getInstance().getTimeInMillis());
         powerHistory.setTimestamp(ZonedDateTime.ofInstant(instant, ZoneOffset.systemDefault()));
         PowerHistory result = powerHistoryRepository.save(powerHistory);
-        powerService.sendPower(result);
+        this.template.convertAndSend("/topic/power", result);
         return ResponseEntity.created(new URI("/api/powerHistorys/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert("powerHistory", result.getId().toString()))
             .body(result);

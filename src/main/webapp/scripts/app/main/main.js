@@ -16,7 +16,14 @@ angular.module('powerApp')
                     }
                 },
                 resolve: {
-                    
-                }
+
+                },
+                onEnter: function(PowerWS) {
+                    PowerWS.connect();
+                    PowerWS.subscribe();
+                },
+                onExit: function(PowerWS) {
+                    PowerWS.unsubscribe();
+                },
             });
     });
