@@ -1,0 +1,17 @@
+power-app-mysql:
+    container_name: power-app-mysql
+    image: mysql:5.7
+    environment:
+        - MYSQL_USER=root
+        - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+        - MYSQL_DATABASE=power
+    ports:
+        - "3306:3306"
+    command: mysqld --lower_case_table_names=1
+power-app:
+    container_name: power-app
+    image: vhadzhipopov/power:latest
+    ports:
+        - "8080:8080"
+    links:
+        - "power-app-mysql:mysql"
